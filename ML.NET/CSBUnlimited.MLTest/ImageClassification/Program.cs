@@ -1,6 +1,7 @@
 ﻿using Microsoft.ML;
 using Microsoft.ML.Vision;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using static Microsoft.ML.DataOperationsCatalog;
@@ -62,7 +63,9 @@ namespace ImageClassification
 
             ITransformer trainedModel = trainingPipeline.Fit(trainSet);
 
+            ClassifyImages(mlContext, testSet, trainedModel);
 
+            Console.ReadLine();
         }
 
         public static IEnumerable<ImageData> LoadImagesFromDirectory(string folder, bool useFolderNameAsLabel = true)
@@ -97,6 +100,35 @@ namespace ImageClassification
                 };
             }
 
+        }
+
+        private static void OutputPrediction(ModelOutput prediction)
+        {
+            string imageName = Path.GetFileName(prediction.ImagePath);
+            Console.WriteLine($"Image: {imageName} | Actual Value: {prediction.Label} | Predicted Value: {prediction.PredictedLabel}");
+        }
+
+        public static void ClassifySingleImage(MLContext mlContext, IDataView data, ITransformer trainedModel)
+        {
+            PredictionEngine<ModelInput, ModelOutput> predictionEngine = mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(trainedModel);
+
+            ModelInput image = mlContext.Data.CreateEnumerable<ModelInput>(data, reuseRowObject: true).First();
+            ModelOutput prediction = predictionEngine.Predict(image);
+
+            Console.WriteLine("Classifying single image");
+            OutputPrediction(prediction); 
+        }
+
+        public static void ClassifyImages(MLContext mlContext, IDataView data, ITransformer trainedModel)
+        {
+            IDataView predictionData = trainedModel.Transform(data);
+            IEnumerable<ModelOutput> predictions = mlContext.Data.CreateEnumerable<ModelOutput>(predictionData, reuseRowObject: true).Take(10);
+
+            Console.WriteLine("Classifying multiple images");
+            foreach (var prediction in predictions)
+            {
+                OutputPrediction(prediction);
+            }
         }
     }
 }
