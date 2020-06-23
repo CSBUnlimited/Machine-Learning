@@ -349,3 +349,6 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /ML.NET/CSBUnlimited.MLTest/ImageClassification/workspace
+/ML.NET/CSBUnlimited.MLTest/AnimalImageClassifier/data
+/ML.NET/CSBUnlimited.MLTest/AnimalImageClassifier/workspace
+/ML.NET/CSBUnlimited.MLTest/AnimalImageClassifier/animal-classifier-model.zip
